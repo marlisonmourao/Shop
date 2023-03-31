@@ -1,5 +1,7 @@
 import { useKeenSlider } from 'keen-slider/react'
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
+import Link from 'next/link'
+
 import Image from 'next/image'
 import Stripe from 'stripe'
 
@@ -29,21 +31,29 @@ export default function Home({ products }: HomeProps) {
     <HomeContainer ref={sliderRef} className="keen-slider">
       {products.map((product) => {
         return (
-          <Product className="keen-slider__slide" key={product.id}>
-            <Image src={product.imageUrl} width={520} height={480} alt="" />
+          <Link href={`/products/${product.id}`} key={product.id}>
+            <Product className="keen-slider__slide">
+              <Image
+                priority
+                src={product.imageUrl}
+                width={520}
+                height={480}
+                alt=""
+              />
 
-            <footer>
-              <strong>{product.name}</strong>
-              <span>{product.price}</span>
-            </footer>
-          </Product>
+              <footer>
+                <strong>{product.name}</strong>
+                <span>{product.price}</span>
+              </footer>
+            </Product>
+          </Link>
         )
       })}
     </HomeContainer>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ['data.default_price'],
   })
@@ -55,7 +65,10 @@ export const getServerSideProps: GetServerSideProps = async () => {
       id: product.id,
       name: product.name,
       imageUrl: product.images[0],
-      price: price.unit_amount !== null ? price.unit_amount / 100 : 0,
+      price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(price.unit_amount !== null ? price.unit_amount / 100 : 0),
     }
   })
 
@@ -64,5 +77,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
       list: [1, 2, 3, 4],
       products,
     },
+    revalidate: 60 * 60 * 2,
   }
 }
