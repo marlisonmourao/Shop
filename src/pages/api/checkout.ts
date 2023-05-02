@@ -5,7 +5,16 @@ export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const priceId = 'price_1Mq6yIBSA8sH9hw6zUPIisnK'
+  const { priceId } = req.body
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  if (!priceId) {
+    return res.status(400).json({ error: 'PriceId not found' })
+  }
+
   const successUrl = `${process.env.NEXT_URL}/success`
   const cancelUrl = `${process.env.NEXT_URL}/`
 
@@ -22,8 +31,6 @@ export default async function handle(
   })
 
   return res.status(201).json({
-    chechoutUrl: checkoutSession.url,
+    checkoutUrl: checkoutSession.url,
   })
-
-  // return res.json({ message: 'ok' })
 }
