@@ -15,10 +15,15 @@ interface ProductProps {
     imageUrl: string
     description: string
     price: string
+    defaultPriceId: string
   }
 }
 
 export default function Product({ product }: ProductProps) {
+  function handleByProduct() {
+    console.log(product.defaultPriceId)
+  }
+
   return (
     <ProductContainer>
       <ImageContainer>
@@ -31,7 +36,7 @@ export default function Product({ product }: ProductProps) {
 
         <p>{product.description}</p>
 
-        <button>Comprar agora</button>
+        <button onClick={handleByProduct}>Comprar agora</button>
       </ProductDetails>
     </ProductContainer>
   )
@@ -62,6 +67,7 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
         name: product.name,
         imageUrl: product.images[0],
         description: product.description,
+        defaultPriceId: price.id,
         price: new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: 'BRL',
